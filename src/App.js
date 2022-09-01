@@ -2,7 +2,7 @@ import { useState } from "react";
 import "./App.css";
 
 import Input from "./components/Input";
-import TodoList from "./components/TodoList";
+import TodoItems from "./components/TodoItems";
 
 function App() {
   const [todoList, setTodoList] = useState([
@@ -14,10 +14,15 @@ function App() {
     { id: 6, todo: "約ada禮拜四吃晚餐", status: false },
   ]);
 
-  // const [inputTodo, setInputTodo] = useState({ todo: "" });
+  const [tab, setTab] = useState([
+    { name: "全部", active: true },
+    { name: "待完成", active: false },
+    { name: "已完成", active: false },
+  ]);
+  const [currentTab, setCurrentTab] = useState("全部");
 
   const [newTask, setNewTask] = useState("");
-  const [updateData, setUpdateData] = useState("");
+  // const [updateData, setUpdateData] = useState("");
 
   const addTask = () => {
     if (newTask) {
@@ -33,23 +38,28 @@ function App() {
   };
 
   const removeDone = () => {
-    let newTasks = todoList.filter((task) => task.status !== true);
-    setTodoList(newTasks);
+    setTodoList(todoList.filter((task) => task.status !== true));
   };
 
   const markDone = (id) => {
-    // let newTask = todoList.map((task) => {
-    //   if (task.id === id) {
-    //     return { ...task, status: !task.status };
-    //   }
-    //   return task;
-    // });
     setTodoList(
       todoList.map((task) =>
         task.id === id ? { ...task, status: !task.status } : task
       )
     );
   };
+
+  function handleTab(index) {
+    tab.map((item, i) => {
+      if (i === index) {
+        item.active = true;
+      } else {
+        item.active = false;
+      }
+    });
+    setTab([...tab]);
+    setCurrentTab(tab[index].name);
+  }
 
   return (
     <div className="App">
@@ -70,30 +80,44 @@ function App() {
             </div>
             <div className="todoList_list">
               <ul className="todoList_tab">
-                <li>
-                  <p>全部</p>
-                </li>
-                <li>
-                  <p>待完成</p>
-                </li>
-                <li>
-                  <p>已完成</p>
-                </li>
+                {tab.map((t, index) => {
+                  return (
+                    <li key={index}>
+                      <p
+                        className={t.active ? "active" : ""}
+                        onClick={() => {
+                          handleTab(index);
+                        }}
+                      >
+                        {t.name}
+                      </p>
+                    </li>
+                  );
+                })}
               </ul>
               <div className="todoList_items">
-                {todoList && todoList.length ? "" : "沒有代辦事項"}
-                <TodoList
-                  todoList={todoList}
-                  deleteTask={deleteTask}
-                  markDone={markDone}
-                />
+                {todoList && todoList.length ? "" : "沒有待辦事項"}
+                {todoList
+                  .filter((item) => {
+                    if (currentTab === "全部") return true;
+                    if (currentTab === "待完成") return !item.status;
+                    if (currentTab === "已完成") return item.status;
+                  })
+
+                  .map((to, i) => {
+                    return (
+                      <TodoItems
+                        to={to}
+                        key={i}
+                        deleteTask={deleteTask}
+                        markDone={markDone}
+                      />
+                    );
+                  })}
 
                 <div className="todoList_statistics">
                   <p>
-                    {" "}
-                    {
-                      todoList.filter((todo) => todo.status !== true).length
-                    }{" "}
+                    {todoList.filter((todo) => todo.status !== true).length}
                     個待完成項目
                   </p>
                   <p onClick={removeDone}>清除已完成項目</p>
