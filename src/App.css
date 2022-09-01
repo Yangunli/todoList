@@ -514,6 +514,7 @@ nav ul a span {
   -webkit-box-pack: space-evenly;
   -ms-flex-pack: space-evenly;
   justify-content: space-evenly;
+  cursor: pointer;
 }
 
 .todoList_list .todoList_tab li {
@@ -614,8 +615,6 @@ nav ul a span {
   font-size: 0.875rem;
   cursor: pointer;
 }
-
-
 
 li button {
   border: none;
